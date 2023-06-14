@@ -14,19 +14,23 @@ go get github.com/li-jin-gou/hertz-jsonp
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/tomwei7/gin-jsonp"
+	"context"
+
+	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/cloudwego/hertz/pkg/common/utils"
+	jsonp "github.com/li-jin-gou/hertz-jsonp"
 )
 
 func main() {
-	r := gin.Default()
-	r.Use(jsonp.JsonP())
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
+	r := server.Default()
+	r.Use(jsonp.JsonPHertz())
+	r.GET("/ping", func(c context.Context, ctx *app.RequestContext) {
+		ctx.JSON(200, utils.H{
 			"message": "pong",
 		})
 	})
-	r.Run("127.0.0.1:8080") // listen and server on 0.0.0.0:8080
+	r.Spin()
 }
 ```
 

@@ -144,6 +144,7 @@ func JsonPHertz() app.HandlerFunc {
 			buffer.Write(StringToBytes("("))
 			buffer.Write(body)
 			buffer.Write(StringToBytes(");"))
+			ctx.Response.SetBody(buffer.Bytes())
 		}
 	}
 }
