@@ -1,12 +1,16 @@
-//gin jsonp middleware
 package jsonp
 
 import (
 	"bufio"
 	"bytes"
-	"github.com/gin-gonic/gin"
+	"context"
+	"html/template"
 	"io"
 	"net"
+	"unsafe"
+
+	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/gin-gonic/gin"
 )
 
 const (
@@ -114,4 +118,42 @@ func JsonP() gin.HandlerFunc {
 			brw.Flush()
 		}
 	}
+}
+
+func JsonPHertz() app.HandlerFunc {
+	return func(c context.Context, ctx *app.RequestContext) {
+		var callback string
+		if jsonp := ctx.DefaultQuery("jsonp", ""); jsonp != "" {
+			callback = jsonp
+		}
+		if callbackStr := ctx.DefaultQuery("callback", ""); callbackStr != "" {
+			callback = callbackStr
+		}
+
+		if callback == "" {
+			ctx.Next(c)
+		} else {
+			ctx.Next(c)
+			// 设置 header
+			ctx.Header("Content-Type", "application/javascript")
+			// 重新设置 body
+			body := ctx.Response.Body()
+			callback = template.JSEscapeString(callback)
+			buffer := new(bytes.Buffer)
+			buffer.Write(StringToBytes(callback))
+			buffer.Write(StringToBytes("("))
+			buffer.Write(body)
+			buffer.Write(StringToBytes(");"))
+		}
+	}
+}
+
+// StringToBytes converts string to byte slice without a memory allocation.
+func StringToBytes(s string) []byte {
+	return *(*[]byte)(unsafe.Pointer(
+		&struct {
+			string
+			Cap int
+		}{s, len(s)},
+	))
 }

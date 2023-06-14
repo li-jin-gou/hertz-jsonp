@@ -1,11 +1,11 @@
-# gin-jsonp
+# hertz-jsonp
 
-JSONP Middleware for Gin Framework
+JSONP Middleware for Hertz Framework
 
 ### install
 
 ```
-go get https://github.com/tomwei7/gin-jsonp
+go get github.com/li-jin-gou/hertz-jsonp
 ```
 
 ### usage
